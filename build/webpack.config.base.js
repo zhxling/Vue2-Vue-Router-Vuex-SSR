@@ -4,6 +4,7 @@ const createVueLoaderOptions = require('./vue-loader.config');
 const isDev = process.env.NODE_ENV === "development"    //判断是否为测试环境,在启动脚本时设置的环境变量都是存在于process.env这个对象里面的
 
 const config = {
+    mode: process.env.NODE_ENV || 'production',         // development || production, webpack4必须配置此项
     target: "web",                                      //设置webpack的编译目标是web平台
     entry: path.join(__dirname,'../client/index.js'),         //声明js文件入口,__dirname就是我们文件的根目录,用join拼接
     output:{                                            //声明出口文件
@@ -23,8 +24,12 @@ const config = {
             },
             {
                 test: /\.js$/,
-                loader: 'babel-loader',                //处理jsx文件
-                exclude: /node_modules/
+                loader: 'babel-loader',                //处理js文件
+                exclude:__dirname+'node_modules',
+                include:__dirname+'client',
+                options: {
+                    presets: ['env']
+                }
             },
             // {
             //     test: /\.css$/,

@@ -3,6 +3,7 @@ const HTMLPlugin = require('html-webpack-plugin')       //引入html-webpack-plu
 const webpack = require("webpack")                      //引入webpack
 const merge = require("webpack-merge");
 const ExtractPlugin = require("extract-text-webpack-plugin")
+const VueLoaderPlugin = require('vue-loader/lib/plugin');  // vue-loader1.5.~以上版本需要
 const baseConfig = require('./webpack.config.base')
 
 const isDev = process.env.NODE_ENV === "development"    //判断是否为测试环境,在启动脚本时设置的环境变量都是存在于process.env这个对象里面的
@@ -13,7 +14,7 @@ const defaultPlugins = [
             NODE_ENV: isDev ? '"development"' : '"production"'
         }
     }),
-    new HTMLPlugin() 
+    new HTMLPlugin()
 ]
 
 const devServer = {                                //这个devServer的配置是在webpack2.x以后引入的,1.x是没有的
@@ -51,7 +52,8 @@ if(isDev){
         },
         plugins: defaultPlugins.concat([
             new webpack.HotModuleReplacementPlugin(),   //添加两个插件用于hot:true的配置
-            new webpack.NoEmitOnErrorsPlugin()
+            new VueLoaderPlugin()
+            // new webpack.NoEmitOnErrorsPlugin()   // webpack4废弃
         ])
     })
 } else{
@@ -83,14 +85,15 @@ if(isDev){
                 }
             ]
         },
+        optimization: {
+            splitChunks: {
+                chunks: 'all'
+            },
+            runtimeChunk: true
+        },
         plugins: defaultPlugins.concat([
             new ExtractPlugin('styles.[contentHash:8].css'),   //定义打包分离出的css文件名
-            new webpack.optimize.CommonsChunkPlugin({          //定义静态文件打包
-                name: 'vendor'
-            }),
-            new webpack.optimize.CommonsChunkPlugin({         //将app.js文件中一些关于webpack文件的配置单独打包出为一个文件,用于解决部分浏览器长缓存问题   
-                name: 'runtime'
-            })
+            new VueLoaderPlugin()
         ])
     })
 } 
